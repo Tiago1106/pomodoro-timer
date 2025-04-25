@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from "react";
+import { Howl } from 'howler';
 
 import { TimerDisplay } from "@/components/TimerDisplay";
 import { ControlPanel } from "@/components/ControlPanel";
@@ -29,6 +30,18 @@ export default function Home() {
         if (total <= 0) {
           clearInterval(intervalRef.current!);
           intervalRef.current = null;
+
+          const sound = new Howl({
+            src: ['/sounds/alarm.wav'],
+            volume: 1.0,
+            onend: function() {
+              setIsSeconds(false);
+              setTime("00:00:30");
+            }
+          });
+          
+          sound.play();
+
           return "00:00:00";
         }
         
