@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { TimerDisplay } from "@/components/TimerDisplay";
 import { ControlPanel } from "@/components/ControlPanel";
+import { changeFullScreen } from "@/helpers/fullScreen";
+import { formatTime } from "@/helpers/formatTimer";
+import { getFlashClass } from "@/helpers/flashClass";
 
 export default function Home() {
   const [time, setTime] = useState("00:00:30");
@@ -11,6 +14,8 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false);
   const [editableTime, setEditableTime] = useState("00:00:30");
 
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isSeconds, setIsSeconds] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = () => {
@@ -26,24 +31,21 @@ export default function Home() {
           intervalRef.current = null;
           return "00:00:00";
         }
-
+        
         const next = total - 1;
         const hh = String(Math.floor(next / 3600)).padStart(2, "0");
         const mm = String(Math.floor((next % 3600) / 60)).padStart(2, "0");
         const ss = String(next % 60).padStart(2, "0");
+
+        setIsSeconds(next <= 10);
+        console.log(next <= 10);
+
         return `${hh}:${mm}:${ss}`;
       });
     }, 1000);
   };
 
   const pauseTimer = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  };
-
-  const resetTimer = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -69,6 +71,10 @@ export default function Home() {
     setEditableTime(value);
   };
 
+  const handleFullScreen = () => {
+    setIsFullScreen(changeFullScreen());
+  };
+
   useEffect(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -76,9 +82,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="font-[family-name:var(--font-orbitron)] flex items-center justify-center h-screen w-full flex-col gap-4 bg-(--color-background)">
-      <TimerDisplay time={time} isEditing={isEditing} onChange={handleChangeTime} value={editableTime} />
-      <ControlPanel onPlay={startTimer} onPause={pauseTimer} onReset={resetTimer} onEdit={editTimer} onAccept={acceptEdit} onCancel={cancelEdit} isEditing={isEditing} />
+    <div className={`font-[family-name:var(--font-orbitron)] flex items-center justify-center h-screen w-full flex-col gap-4 ${getFlashClass(time, isEditing)}`}>
+      <TimerDisplay time={formatTime(time)} isEditing={isEditing} onChange={handleChangeTime} value={editableTime} />
+      <ControlPanel onPlay={startTimer} onPause={pauseTimer} onEdit={editTimer} onFullScreen={handleFullScreen} onAccept={acceptEdit} onCancel={cancelEdit} isEditing={isEditing} isFullScreen={isFullScreen} isSeconds={isSeconds} />
     </div>
   );
 }

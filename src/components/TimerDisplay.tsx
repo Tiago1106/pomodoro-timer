@@ -17,7 +17,7 @@ export function TimerDisplay({ time, isEditing, onChange, value }: TimerDisplayP
           maxLength={8}
         />
       ) : (
-        <span className="sm:text-9xl text-6xl text-(--color-primary)">{time}</span>
+        <span className="sm:text-9xl text-6xl">{time}</span>
       )}
     </>
   );
